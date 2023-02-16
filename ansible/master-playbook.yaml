@@ -1,0 +1,28 @@
+- name: Kube Master setup
+  hosts: all
+  become: yes
+  tasks:
+    - name: Set environment variables
+      shell: |
+        IPADDR="$(ip --json a s | jq -r '.[] | if .ifname == "eth0" then .addr_info[] | if .family == "inet" then .local else empty end else empty end')"
+        echo $IPADDR
+        NODENAME=$(hostname -s)
+        echo $NODENAME
+        POD_CIDR="192.168.0.0/16"
+        echo $POD_CIDR
+        kubeadm init --apiserver-advertise-address=$IPADDR  --apiserver-cert-extra-sans=$IPADDR  --pod-network-cidr=$POD_CIDR --node-name $NODENAME --ignore-preflight-errors Swap,Mem,NumCPU
+        
+
+    - name: Create token
+      shell: kubeadm token create --print-join-command
+      args:
+        executable: /bin/bash
+      register: shell_output
+
+    - debug: var=shell_output
+
+    - name: Set path to kube config
+      shell: |
+        export KUBECONFIG=/etc/kubernetes/admin.conf
+        echo -e "export KUBECONFIG=/etc/kubernetes/admin.conf" >>~/.bashrc
+        kubectl apply -f https://raw.githubusercontent.com/techiescamp/kubeadm-scripts/main/manifests/metrics-server.yaml

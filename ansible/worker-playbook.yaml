@@ -1,0 +1,15 @@
+- name: Kube Worker setup
+  hosts: all
+  become: yes
+  tasks:
+    - name: Create token
+      shell: |
+        kubeadm join {{MASTER_PRIVATE_IP}}:6443 \
+        --token {{TOKEN}} \
+        --discovery-token-ca-cert-hash {{HASH}}
+
+      args:
+        executable: /bin/bash
+      register: shell_output
+
+    - debug: var=shell_output
