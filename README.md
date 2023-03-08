@@ -14,12 +14,12 @@ This repo contains terraform and ansible code required to spin up resources requ
 
 2. Make a Plan to view resources being provisioned
    ```bash
-   terrafom plan
+   terraform plan
    ```
 
 3. Provision planned infrastructure (`-auto-approve` executes the command in non-interactive mode)
    ```bash
-   terrafom apply -auto-approve
+   terraform apply -auto-approve
    ```
    Terraform will write files containing the node ssh key and all the IPs of the nodes both public and private. You'll find them in the ansible folder
 
